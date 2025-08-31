@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #003366;
+  --color-primary-light: #1a4480;
+  --color-secondary: #f0f4f8;
+  --color-accent: #f9c74f;
+  --color-success: #43aa8b;
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #4b5563;
+}
+
+html {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--color-text-primary);
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: white;
+}
+
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--color-primary);
+  }
+
+  h1 {
+    @apply text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6;
+  }
+
+  h2 {
+    @apply text-3xl sm:text-4xl font-bold tracking-tight mb-5;
+  }
+
+  h3 {
+    @apply text-2xl font-bold mb-4;
+  }
+
+  h4 {
+    @apply text-xl font-semibold mb-3;
+  }
+
+  p {
+    @apply mb-4 leading-relaxed;
+  }
+}
+
+@layer components {
+  .container-custom {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+  
+  .section {
+    @apply py-16 sm:py-24;
+  }
+  
+  .btn-primary {
+    @apply bg-[#003366] hover:bg-[#1a4480] text-white font-medium py-2 px-4 rounded transition duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-white hover:bg-gray-50 text-[#003366] font-medium py-2 px-4 rounded border border-[#003366] transition duration-200;
+  }
+  
+  .card {
+    @apply bg-white p-6 rounded-lg shadow-sm border border-gray-200;
+  }
+  
+  .data-table {
+    @apply w-full border-collapse;
+  }
+  
+  .data-table th {
+    @apply bg-[#f0f4f8] text-left p-3 font-semibold text-[#003366] border-b-2 border-[#003366];
+  }
+  
+  .data-table td {
+    @apply p-3 border-b border-gray-200;
+  }
+} 
