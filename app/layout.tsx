@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
+import { Providers } from './providers';
 
 export const metadata: Metadata = {
   title: 'Financial Manager - Career Resources and Tools',
@@ -16,12 +17,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <Navbar />
-        <div style={{ paddingTop: '64px' }}>
-          {children}
-        </div>
-        <Footer />
+      <body className="flex min-h-screen flex-col bg-white">
+        <Providers>
+          <Navbar />
+          <div className="flex-grow pt-16">
+            {children}
+          </div>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

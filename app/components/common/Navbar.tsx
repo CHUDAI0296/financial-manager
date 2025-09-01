@@ -3,14 +3,17 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Disclosure } from '@headlessui/react';
-import { Bars3Icon, XMarkIcon, ChartBarIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { Disclosure, Menu, Transition } from '@headlessui/react';
+import { Bars3Icon, XMarkIcon, ChartBarIcon, MagnifyingGlassIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { useSession, signOut } from 'next-auth/react';
+import { Fragment } from 'react';
 
 const navigation = [
   { name: 'Home', href: '/' },
   { name: 'Career Guide', href: '/career' },
   { name: 'Education', href: '/education' },
   { name: 'Financial Tools', href: '/tools' },
+  { name: 'Community', href: '/community' },
   { name: 'Industry News', href: '/news' },
 ];
 
@@ -27,6 +30,7 @@ function classNames(...classes: string[]) {
 export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -111,12 +115,94 @@ export default function Navbar() {
                     />
                   </div>
                   
-                  <Link
-                    href="/login"
-                    className="btn-primary"
-                  >
-                    Login
-                  </Link>
+                  {status === 'authenticated' ? (
+                    <Menu as="div" className="relative ml-3">
+                      <div>
+                        <Menu.Button className="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#1a4480] focus:ring-offset-2">
+                          <span className="sr-only">Open user menu</span>
+                          {session?.user?.image ? (
+                            <img
+                              className="h-8 w-8 rounded-full"
+                              src={session.user.image}
+                              alt={`${session.user.name}'s profile`}
+                            />
+                          ) : (
+                            <UserCircleIcon className="h-8 w-8 text-gray-400" aria-hidden="true" />
+                          )}
+                        </Menu.Button>
+                      </div>
+                      <Transition
+                        as={Fragment}
+                        enter="transition ease-out duration-200"
+                        enterFrom="transform opacity-0 scale-95"
+                        enterTo="transform opacity-100 scale-100"
+                        leave="transition ease-in duration-75"
+                        leaveFrom="transform opacity-100 scale-100"
+                        leaveTo="transform opacity-0 scale-95"
+                      >
+                        <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                          <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                            <div className="font-medium">{session?.user?.name}</div>
+                            <div className="truncate">{session?.user?.email}</div>
+                          </div>
+                          <Menu.Item>
+                            {({ active }) => (
+                              <Link
+                                href="/dashboard"
+                                className={classNames(
+                                  active ? 'bg-gray-100' : '',
+                                  'block px-4 py-2 text-sm text-gray-700'
+                                )}
+                              >
+                                Dashboard
+                              </Link>
+                            )}
+                          </Menu.Item>
+                          <Menu.Item>
+                            {({ active }) => (
+                              <Link
+                                href="/dashboard/settings"
+                                className={classNames(
+                                  active ? 'bg-gray-100' : '',
+                                  'block px-4 py-2 text-sm text-gray-700'
+                                )}
+                              >
+                                Settings
+                              </Link>
+                            )}
+                          </Menu.Item>
+                          <Menu.Item>
+                            {({ active }) => (
+                              <button
+                                onClick={() => signOut({ callbackUrl: '/' })}
+                                className={classNames(
+                                  active ? 'bg-gray-100' : '',
+                                  'block w-full text-left px-4 py-2 text-sm text-gray-700'
+                                )}
+                              >
+                                Sign out
+                              </button>
+                            )}
+                          </Menu.Item>
+                        </Menu.Items>
+                      </Transition>
+                    </Menu>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Link
+                        href="/auth/signin"
+                        className="rounded-md bg-white px-3 py-2 text-sm font-medium text-[#003366] hover:bg-gray-50 border border-[#003366]"
+                      >
+                        Sign in
+                      </Link>
+                      <Link
+                        href="/auth/signup"
+                        className="rounded-md bg-[#003366] px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#1a4480]"
+                      >
+                        Sign up
+                      </Link>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center sm:hidden">
@@ -171,14 +257,65 @@ export default function Navbar() {
                   </div>
                 </div>
 
-                <div className="mt-4 px-3">
-                  <Link
-                    href="/login"
-                    className="block w-full rounded-md bg-[#003366] px-3 py-2 text-center text-sm font-medium text-white shadow-sm hover:bg-[#1a4480]"
-                  >
-                    Login
-                  </Link>
-                </div>
+                {status === 'authenticated' ? (
+                  <div className="border-t border-gray-200 pt-4">
+                    <div className="flex items-center px-3">
+                      {session?.user?.image ? (
+                        <div className="flex-shrink-0">
+                          <img
+                            className="h-10 w-10 rounded-full"
+                            src={session.user.image}
+                            alt={`${session.user.name}'s profile`}
+                          />
+                        </div>
+                      ) : (
+                        <UserCircleIcon className="h-10 w-10 text-gray-400" aria-hidden="true" />
+                      )}
+                      <div className="ml-3">
+                        <div className="text-base font-medium text-gray-800">{session?.user?.name}</div>
+                        <div className="text-sm font-medium text-gray-500">{session?.user?.email}</div>
+                      </div>
+                    </div>
+                    <div className="mt-3 space-y-1">
+                      <Disclosure.Button
+                        as="a"
+                        href="/dashboard"
+                        className="block px-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50"
+                      >
+                        Dashboard
+                      </Disclosure.Button>
+                      <Disclosure.Button
+                        as="a"
+                        href="/dashboard/settings"
+                        className="block px-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50"
+                      >
+                        Settings
+                      </Disclosure.Button>
+                      <Disclosure.Button
+                        as="button"
+                        onClick={() => signOut({ callbackUrl: '/' })}
+                        className="block w-full text-left px-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50"
+                      >
+                        Sign out
+                      </Disclosure.Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-4 space-y-2 px-3">
+                    <Link
+                      href="/auth/signin"
+                      className="block w-full rounded-md bg-white px-3 py-2 text-center text-sm font-medium text-[#003366] shadow-sm border border-[#003366]"
+                    >
+                      Sign in
+                    </Link>
+                    <Link
+                      href="/auth/signup"
+                      className="block w-full rounded-md bg-[#003366] px-3 py-2 text-center text-sm font-medium text-white shadow-sm hover:bg-[#1a4480]"
+                    >
+                      Sign up
+                    </Link>
+                  </div>
+                )}
               </div>
             </Disclosure.Panel>
           </>
