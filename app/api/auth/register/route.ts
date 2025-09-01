@@ -31,28 +31,36 @@ export async function POST(request: Request) {
       );
     }
 
-    // 检查邮箱是否已被使用
-    const existingUser = await getUserByEmail(email);
-    if (existingUser) {
+    try {
+      // 检查邮箱是否已被使用
+      const existingUser = await getUserByEmail(email);
+      if (existingUser) {
+        return NextResponse.json(
+          { message: 'Email already in use' },
+          { status: 409 }
+        );
+      }
+
+      // 哈希密码
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // 创建新用户
+      const user = await createUser({
+        name,
+        email,
+        password: hashedPassword,
+      });
+
+      // 返回成功响应，不包含密码
+      const { password: _, ...userWithoutPassword } = user;
+      return NextResponse.json(userWithoutPassword, { status: 201 });
+    } catch (error) {
+      console.error('Database operation error:', error);
       return NextResponse.json(
-        { message: 'Email already in use' },
-        { status: 409 }
+        { message: 'User registration failed due to database error. Try again later.' },
+        { status: 503 }
       );
     }
-
-    // 哈希密码
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // 创建新用户
-    const user = await createUser({
-      name,
-      email,
-      password: hashedPassword,
-    });
-
-    // 返回成功响应，不包含密码
-    const { password: _, ...userWithoutPassword } = user;
-    return NextResponse.json(userWithoutPassword, { status: 201 });
   } catch (error) {
     console.error('Registration error:', error);
     return NextResponse.json(
